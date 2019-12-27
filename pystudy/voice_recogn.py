@@ -12,7 +12,7 @@ sound = client.synthesis(s, 'zh',1,{
 		'vol': 5,   #音量，取值0-15，默认为5中音量
 		'per': 3,
 		'spd': 6,	#语速，取值0-9， 默认为5中语速
-		'pit': 3,	#音调，取值0-9， 默认为5中语调
+		'pit': 8,	#音调，取值0-9， 默认为5中语调
 		})
 if not isinstance(sound, dict):
 	with open('./tts.mp3', 'wb') as f:
