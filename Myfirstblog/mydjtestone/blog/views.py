@@ -3,14 +3,23 @@ from .models import BlogArticles
 from django.contrib.auth.decorators import login_required
 from .forms import BlogArticlesForm
 from django.http import HttpResponse
-
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 def blog_title(request):
     blogs = BlogArticles.objects.all()
-    return render(request,'blog/title.html',{'blogs':blogs})
+    paginator = Paginator(blogs,2)
+    page = request.GET.get('page')
+    try:
+        current_page = paginator.page(page)
+    except PageNotAnInteger:
+        current_page = paginator.page(1)
+    except EmptyPage:
+        current_page = paginator.page(paginator.num_pages)
+    current_blogs = current_page.object_list
+    return render(request,'blog/title.html',{'blogs':current_blogs,'page':current_page})
 
-def blog_article(request):
-    article = BlogArticles.objects.get(id='article_id')
+def blog_article(request,article_id):
+    article = BlogArticles.objects.get(id=article_id)
     pub = article.publish
     return render(request,'blog/content.html',{'article':article,'publish':pub})
 
@@ -20,7 +29,7 @@ def blog_post(request):
         blog_form = BlogArticlesForm()
         return render(request,'blog/blog_post.html',{'blog_form':blog_form})
     if request.method == 'POST':
-        blog_form = BlogArticlesForms(request.POST)
+        blog_form = BlogArticlesForm(request.POST)
         if blog_form.is_valid():
             cd = blog_form.cleaned_data
             try:

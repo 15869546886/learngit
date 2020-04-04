@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% block title %}提交博客{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'editor/css/editormd.css' %}">
+<link rel="stylesheet" href="{% static 'editor/css/style.css' %}">
+<div class="row text-center">
+    <form action="." class='form-horizontal' method="POST">
+        <div class="row">
+            <div class="col-md-2 text-right">标题：</div>
+            <div class="col-md-10">{{blog_form.title}}</div>
+        </div>
+        <div class="row">
+            <div class="col-md-2 text-right">内容：</div>
+            <div id='editormd' class="col-md-10 text-left">
+                <textarea style='display: none;' id="id_body"></textarea>
+            </div>
+        </div>
+        <div class='row'>
+            <input type="button" class="btn btn-primary" value="发布博客" onclick="post_blog()">
+        </div>  
+    </form>
+</div>
+
+<script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/layer.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/csrf.js' %}"></script>
+<script type="text/javascript" src="{% static 'editor/editormd.min.js' %}"></script>
+<script>
+    function post_blog(){
+        var title = $('#id_title').val()
+        var body = $('#id_body').val()
+        $.ajax({
+            type:"POST",
+            url:"{% url 'blog:blog_post' %}",
+            data:{'title':title,'body':body},
+            success: function(e){
+                if(e=='1'){
+                    layer.msg('发布成功')
+                    location.href="{% url 'blog:blog_title' %}";
+                }else if(e=='-1'){
+                    layer.msg('服务器繁忙')
+                }else{
+                    layer.msg('请检查输入内容，不允许空。')
+                }
+            }
+        });
+    }
+    $(function(){
+        var editor = editormd("editormd",{
+            width:"100%",
+            height:640,
+            syncScrolling:'single',
+            path:"{% static 'editor/lib/'%}"
+        });
+    });
+</script>
+
+{% endblock %}
